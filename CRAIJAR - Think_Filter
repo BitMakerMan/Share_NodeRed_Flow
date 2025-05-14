@@ -1,0 +1,130 @@
+[
+    {
+        "id": "ae669185c6e46c67",
+        "type": "tab",
+        "label": "CRAIJAR - Flow Avanzato",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "d1f41512a3be492f",
+        "type": "ollama-generate",
+        "z": "ae669185c6e46c67",
+        "name": "Qwen3:8b - Risposta Diretta",
+        "server": "82d8ee2d688efb69",
+        "format": "",
+        "model": "qwen3:8b",
+        "modelType": "str",
+        "prompt": "",
+        "promptType": "str",
+        "suffix": "",
+        "suffixType": "str",
+        "system": "Sei un assistente domestico AI chiamato CRAIJAR - Craicek’s Really Advanced Intelligent Jarvis Replica. Il tuo compito è interpretare eventi domestici e rispondere SOLO con azioni utili, strutturate e contestuali.Non devi mai mostrare ragionamenti interni, pensieri o spiegazioni. Ogni volta che ricevi un evento(es. hanno suonato il campanello, la porta è aperta, c'è movimento in salotto), devi rispondere esclusivamente dopo il marker: toData E devi fornire un output strutturato tipo: 1. Azione da eseguire(es.accendi le luci) 2. Dispositivo interessato(es.telecamera 1) 3. Eventuali notifiche o avvisi(es.invia una notifica) Esempio: toData { azione: accendi_luce_portone, dispositivo: luci.portone, notifica: true, dettaglio: Persona rilevata al campanello } Non aggiungere mai altro testo fuori da questa struttura.",
+        "systemType": "str",
+        "template": "",
+        "templateType": "str",
+        "raw": false,
+        "images": "",
+        "imagesType": "json",
+        "stream": false,
+        "keepAlive": "",
+        "keepAliveType": "str",
+        "options": "",
+        "x": 920,
+        "y": 260,
+        "wires": [
+            [
+                "3cccf3402867bccb"
+            ]
+        ]
+    },
+    {
+        "id": "51d8fa78f840a56b",
+        "type": "inject",
+        "z": "ae669185c6e46c67",
+        "name": "Simula Campanello",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "",
+        "topic": "",
+        "payload": "{\"evento\": \"campanello\", \"orario\": \"sera\"}",
+        "payloadType": "json",
+        "x": 350,
+        "y": 260,
+        "wires": [
+            [
+                "d13c192fd05cf85b"
+            ]
+        ]
+    },
+    {
+        "id": "d13c192fd05cf85b",
+        "type": "function",
+        "z": "ae669185c6e46c67",
+        "name": "Costruisci Prompt Contestuale",
+        "func": "// Estrai info dal payload\nlet evento = msg.payload.evento;\nlet orario = msg.payload.orario;\nmsg.payload = {\n    // Costruisci il prompt contestuale\n    \"model\": \"qwen3:8b\",\n    \"prompt\": \"È sera e qualcuno ha suonato il campanello. Cosa devo fare?\", // prompt personalizzato\n    \"temperature\": 0.2, // Controlla la creatività della risposta (0 = più rigido, 1 = più creativo)\n    \"top_p\": 0.9,       // Controlla la diversità della risposta    \n    \"stream\": false     // Disattiva lo streaming se vuoi tutto in una sola risposta\n};\n\n//msg.system = \"Sei un assistente domestico AI. Rispondi SOLO con l'azione da eseguire, in modo chiaro e diretto. Nessun testo extra.\";\n\nmsg.system = \"Sei un assistente domestico AI chiamato CRAIJAR - Craicek’s Really Advanced Intelligent Jarvis Replica. Il tuo compito è interpretare eventi domestici e rispondere SOLO con azioni utili, strutturate e contestuali.Non devi mai mostrare ragionamenti interni, pensieri o spiegazioni. Ogni volta che ricevi un evento(es. hanno suonato il campanello, la porta è aperta, c'è movimento in salotto), devi rispondere esclusivamente dopo il marker: toData E devi fornire un output strutturato tipo: 1. Azione da eseguire(es.accendi le luci) 2. Dispositivo interessato(es.telecamera 1) 3. Eventuali notifiche o avvisi(es.invia una notifica) Esempio: toData { azione: accendi_luce_portone, dispositivo: luci.portone, notifica: true, dettaglio: Persona rilevata al campanello } Non aggiungere mai altro testo fuori da questa struttura.\";\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 630,
+        "y": 260,
+        "wires": [
+            [
+                "d1f41512a3be492f"
+            ]
+        ]
+    },
+    {
+        "id": "b67b57a9d577fa45",
+        "type": "debug",
+        "z": "ae669185c6e46c67",
+        "name": "Solo Risposta Finale",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1400,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "3cccf3402867bccb",
+        "type": "function",
+        "z": "ae669185c6e46c67",
+        "name": "Think_Filter",
+        "func": "// Prendi la risposta dell'LLM\nlet response = msg.payload;\n\n// Verifica che sia una stringa, altrimenti forzala\nif (typeof response !== 'string') {\n    if (typeof response === 'object' && response !== null && response.response) {\n        response = response.response; // caso in cui usi payload strutturato\n    } else {\n        response = JSON.stringify(response);\n    }\n}\n\n// Cerca i marker di inizio e fine pensiero\nconst startMarker = \"</think>\\n\";\nconst startIndex = response.indexOf(startMarker);\n\nif (startIndex !== -1) {\n    // Estrai dal punto dopo \"startMarker\"\n    let cleanResponse = response.slice(startIndex + startMarker.length).trim();\n\n    // (Opzionale) Rimuovi eventuali commenti o testo dopo se ci sono altri marker\n    const endMarker = \"</think>\"; // evita eventuali ripetizioni\n    const endIndex = cleanResponse.indexOf(endMarker);\n\n    if (endIndex !== -1) {\n        cleanResponse = cleanResponse.slice(0, endIndex).trim();\n    }\n\n    // Salva solo il messaggio utile nel payload\n    msg.payload = cleanResponse;\n} else {\n    // Fallback: se non trova il marker, lascia passare comunque il testo grezzo\n    msg.payload = response.trim();\n    node.warn(\"Nessun marker 'toData' trovato. Inviato output grezzo.\");\n}\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1170,
+        "y": 260,
+        "wires": [
+            [
+                "b67b57a9d577fa45"
+            ]
+        ]
+    },
+    {
+        "id": "82d8ee2d688efb69",
+        "type": "ollama-config-server",
+        "host": "0.0.0.0",
+        "port": 11434
+    }
+]

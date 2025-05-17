@@ -101,7 +101,7 @@ Alcuni nodi di terze parti possono non essere ben testati
 Richiede attenzione alla sicurezza quando esposto su rete pubblica
 
 🔗 Link utili
-Sito ufficiale: https://nodered.org
-Marketplace nodi: https://flows.nodered.org
-Documentazione: https://nodered.org/docs/
-GitHub: https://github.com/node-red/node-red
+- Sito ufficiale: https://nodered.org
+- Marketplace nodi: https://flows.nodered.org
+- Documentazione: https://nodered.org/docs/
+- GitHub: https://github.com/node-red/node-red

@@ -7,6 +7,10 @@ Possono essere utilizzati come fonte di ispirazione o come componenti pronti all
 
 🔧 Nota: I flussi sono forniti come file .json e possono essere importati direttamente in Node-RED.
 
+Ma prima consulta la wiki, puoi trovare informazioni utili ed esempi di utilizzo:
+
+https://github.com/BitMakerMan/Share_NodeRed_Flow/wiki
+
 ---
 
 # Cos'è Node-RED?

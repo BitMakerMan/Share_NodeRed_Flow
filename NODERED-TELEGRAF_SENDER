@@ -1,0 +1,157 @@
+[
+    {
+        "id": "b0cfb97eb513bc00",
+        "type": "tab",
+        "label": "TELEGRAF INVIO ALLERT DA SENSORI SIMULATI",
+        "disabled": false,
+        "info": "Flusso di esempio per monitoraggio temperatura con Telegram, sensori simulati",
+        "env": []
+    },
+    {
+        "id": "4c41415061383636",
+        "type": "function",
+        "z": "b0cfb97eb513bc00",
+        "name": "Controlla temperatura",
+        "func": "if (msg.payload > 30) {\n    msg.payload = {\n        chatId: context.global.chatId,\n        type: 'message',\n        text: \"⚠️ Temperatura alta! Valore: \" + msg.payload + \"°C\"\n    };\n} else {\n    msg.payload = null;\n}\nreturn [msg];",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 660,
+        "y": 500,
+        "wires": [
+            [
+                "e406399d9f533795"
+            ]
+        ]
+    },
+    {
+        "id": "e406399d9f533795",
+        "type": "telegram sender",
+        "z": "b0cfb97eb513bc00",
+        "name": "",
+        "bot": "d031d697a567012e",
+        "haserroroutput": true,
+        "outputs": 2,
+        "x": 890,
+        "y": 500,
+        "wires": [
+            [],
+            []
+        ]
+    },
+    {
+        "id": "8b393b9cbd4e274b",
+        "type": "inject",
+        "z": "b0cfb97eb513bc00",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "31",
+        "payloadType": "num",
+        "x": 430,
+        "y": 520,
+        "wires": [
+            [
+                "4c41415061383636"
+            ]
+        ]
+    },
+    {
+        "id": "3d26ec3dd10c919a",
+        "type": "inject",
+        "z": "b0cfb97eb513bc00",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "20",
+        "payloadType": "num",
+        "x": 430,
+        "y": 480,
+        "wires": [
+            [
+                "4c41415061383636"
+            ]
+        ]
+    },
+    {
+        "id": "8c1ffcd898785bb1",
+        "type": "telegram receiver",
+        "z": "b0cfb97eb513bc00",
+        "name": "",
+        "bot": "d031d697a567012e",
+        "saveDataDir": "",
+        "filterCommands": false,
+        "x": 450,
+        "y": 400,
+        "wires": [
+            [
+                "e363d702064d91c1"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "e363d702064d91c1",
+        "type": "function",
+        "z": "b0cfb97eb513bc00",
+        "name": "Registra Chat ID",
+        "func": "// Memorizza il chatId globalmente\nif (msg.payload.chatId) {\n    context.global.chatId = msg.payload.chatId;\n    node.warn(\"Chat ID registrato: \" + context.global.chatId);\n} else {\n    node.warn(\"Errore: chat ID non trovato nel messaggio.\");\n}\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 680,
+        "y": 400,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "d031d697a567012e",
+        "type": "telegram bot",
+        "botname": "TEST",
+        "usernames": "",
+        "chatids": "",
+        "baseapiurl": "",
+        "testenvironment": false,
+        "updatemode": "polling",
+        "pollinterval": 300,
+        "usesocks": false,
+        "sockshost": "",
+        "socksprotocol": "socks5",
+        "socksport": 6667,
+        "socksusername": "anonymous",
+        "sockspassword": "",
+        "bothost": "",
+        "botpath": "",
+        "localbothost": "0.0.0.0",
+        "localbotport": 8443,
+        "publicbotport": 8443,
+        "privatekey": "",
+        "certificate": "",
+        "useselfsignedcertificate": false,
+        "sslterminated": false,
+        "verboselogging": false
+    }
+]
